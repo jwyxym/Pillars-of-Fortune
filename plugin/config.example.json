@@ -1,0 +1,26 @@
+{
+	"item_interval": 5,
+	"item_count": 1,
+	"same_items": false,
+	"prop_chance": 3,
+	"pillar_height": 60,
+	"pillar_radius": 16,
+	"ground_radius": 16,
+	"ground_layers": 1,
+	"pillar_block": "minecraft:stone",
+	"ground_block": "minecraft:bedrock",
+	"countdown": 5,
+	"event_interval": 60,
+	"teams": 0,
+	"double_health": false,
+	"night_vision": true,
+	"natural_regeneration": true,
+	"fishing": false,
+	"initial_tool": false,
+	"bonus_prop": false,
+	"spawn_protection": true,
+	"events": [
+		"nothing", "border", "arrows", "lava", "thunder", "moon", "swap", "supply",
+		"invisible", "harvest", "iron", "magnet", "small", "touch", "purge", "nuke"
+	]
+}

@@ -1,6 +1,0 @@
-# 死亡玩家传送
-execute positioned 0 120 0 as @a[limit=1, distance=..6, scores={jkpof.tp=1}] run function jkpof:state/1/hurt/sub/death/tp/record
-
-# 检查人数
-execute unless score #test_mode jkpof.int matches 1 unless score #event_betrayal_hour.status jkpof.int matches 1 run function jkpof:state/1/end/by_teams
-execute unless score #test_mode jkpof.int matches 1 if score #event_betrayal_hour.status jkpof.int matches 1 run function jkpof:state/1/end/by_betrayal

@@ -1,0 +1,68 @@
+name: Release WASM plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build and publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-plugin-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+      CARGO_TERM_COLOR: always
+    defaults:
+      run:
+        shell: bash
+        working-directory: plugin
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+
+      - name: Install Rust and WASI target
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup target add wasm32-wasip2 --toolchain stable
+
+      - name: Build WASM plugin
+        run: cargo +stable build --release --target wasm32-wasip2
+
+      - name: Preserve WASM artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pillars-of-fortune-wasm
+          path: plugin/target/wasm32-wasip2/release/pillars_of_fortune.wasm
+          if-no-files-found: error
+
+      - name: Publish WASM to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          artifact="target/wasm32-wasip2/release/pillars_of_fortune.wasm"
+          test -s "$artifact"
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$artifact" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$artifact" \
+              --verify-tag \
+              --title "$RELEASE_TAG" \
+              --generate-notes
+          fi
